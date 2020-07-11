@@ -31,6 +31,8 @@ public class GettingCMEs {
     resultList.forEach(el -> System.out.println(el.getDuration() + " " + el.getCMEs()));
   }
 
+  //time complexity O(n!)
+  // space complexity O(n)
   public static void findBestCombination(List<Webinar> tempResult, List<Webinar> resultList, List<Webinar> availableWebinars, int maxHours, int index, AtomicInteger resultScore) {
     if (maxHours < 0) {
       return;
