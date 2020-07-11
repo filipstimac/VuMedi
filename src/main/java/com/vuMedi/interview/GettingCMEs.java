@@ -3,10 +3,9 @@ package com.vuMedi.interview;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class GettingCMEs {
-  public static List<Webinar> result = new ArrayList<>();
-  public static int resultScore;
 
   public static void main(String[] args) {
     Scanner scanner = new Scanner(System.in);
@@ -22,22 +21,26 @@ public class GettingCMEs {
     }
     scanner.close();
 
-    webinars.sort(Webinar::compareTo);
-    findBestCombination(new ArrayList<>(), webinars, maxHours, 0);
+    List<Webinar> resultList = new ArrayList<>();
+    AtomicInteger resultScore = new AtomicInteger(0);
 
-    System.out.println(GettingCMEs.resultScore);
-    GettingCMEs.result.forEach(el -> System.out.println(el.getDuration() + " " + el.getCMEs()));
+    webinars.sort(Webinar::compareTo);
+    findBestCombination(new ArrayList<>(), resultList, webinars, maxHours, 0, resultScore);
+
+    System.out.println(resultScore);
+    resultList.forEach(el -> System.out.println(el.getDuration() + " " + el.getCMEs()));
   }
 
-  public static void findBestCombination(List<Webinar> tempResult, List<Webinar> availableWebinars, int maxHours, int index) {
+  public static void findBestCombination(List<Webinar> tempResult, List<Webinar> resultList, List<Webinar> availableWebinars, int maxHours, int index, AtomicInteger resultScore) {
     if (maxHours < 0) {
       return;
     }
 
     int tempScore = tempResult.stream().mapToInt(Webinar::getCMEs).sum();
-    if (tempScore > GettingCMEs.resultScore) {
-      GettingCMEs.resultScore = tempScore;
-      GettingCMEs.result = new ArrayList<>(tempResult);
+    if (tempScore > resultScore.intValue()) {
+      resultScore.set(tempScore);
+      resultList.clear();
+      resultList.addAll(tempResult);
     }
 
     for (int i = index; i < availableWebinars.size(); i++) {
@@ -46,7 +49,7 @@ public class GettingCMEs {
       }
 
       tempResult.add(availableWebinars.get(i));
-      findBestCombination(tempResult, availableWebinars, maxHours - availableWebinars.get(i).getDuration(), i + 1);
+      findBestCombination(tempResult, resultList, availableWebinars, maxHours - availableWebinars.get(i).getDuration(), i + 1, resultScore);
       tempResult.remove(tempResult.size() - 1);
     }
   }
@@ -59,17 +62,8 @@ public class GettingCMEs {
       this.duration = duration;
     }
 
-    public Webinar(int duration, int CMEs) {
-      this.duration = duration;
-      this.CMEs = CMEs;
-    }
-
     public int getDuration() {
       return duration;
-    }
-
-    public void setDuration(int duration) {
-      this.duration = duration;
     }
 
     public int getCMEs() {
